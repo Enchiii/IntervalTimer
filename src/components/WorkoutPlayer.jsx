@@ -1,5 +1,10 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { fmt, matteAccent, matteBorder } from "./utils";
+
+// --- START: Update the audio object ---
+const shortBeep = new Audio('/short.mp3');
+const longBeep = new Audio('/long.mp3');
+// --- END ---
 
 export default function WorkoutPlayer({ workout, onBack }) {
   // ------- SAFE INPUTS -------
@@ -22,6 +27,9 @@ export default function WorkoutPlayer({ workout, onBack }) {
   const [currentSet, setCurrentSet] = useState(1);
   const [stepIdx, setStepIdx] = useState(0);
   const [done, setDone] = useState(false);
+
+  // ZMIENIONY: Używamy ref, aby uniknąć zbędnego renderowania
+  const lastPlayedSecondRef = useRef(null);
 
   // Keep stepIdx in range if steps change
   useEffect(() => {
@@ -63,6 +71,23 @@ export default function WorkoutPlayer({ workout, onBack }) {
 
       setRemainingMs((ms) => {
         const next = ms - dt;
+        const nextSec = Math.ceil(next / 1000);
+
+        // --- START: POPRAWIONA LOGIKA DŹWIĘKOWA ---
+        // Sprawdź, czy timer jest w ostatniej sekundzie i czy dźwięk dla tej sekundy jeszcze nie zagrał
+        if (nextSec !== lastPlayedSecondRef.current) {
+          if (nextSec === 3 || nextSec === 2) {
+            shortBeep.currentTime = 0;
+            shortBeep.play().catch(e => console.error("Error playing sound:", e));
+            lastPlayedSecondRef.current = nextSec; // Zapisz, że dźwięk dla tej sekundy już zagrał
+          } else if (nextSec === 1) {
+            longBeep.currentTime = 0;
+            longBeep.play().catch(e => console.error("Error playing sound:", e));
+            lastPlayedSecondRef.current = nextSec;
+          }
+        }
+        // --- KONIEC: POPRAWIONEJ LOGIKI DŹWIĘKOWEJ ---
+
         if (next > 0) return next;
 
         // Transition
@@ -72,6 +97,7 @@ export default function WorkoutPlayer({ workout, onBack }) {
             const newIdx = stepIdx + 1;
             const newDur = steps[newIdx].sec * 1000;
             setStepIdx(newIdx);
+            lastPlayedSecondRef.current = null; // Resetuj po zmianie fazy
             // phase stays "work"
             return newDur; // <<< return next step duration immediately
           }
@@ -79,6 +105,7 @@ export default function WorkoutPlayer({ workout, onBack }) {
           // Last step in set
           if (currentSet < cycles && restSec > 0) {
             setPhase("rest");
+            lastPlayedSecondRef.current = null;
             return restSec * 1000; // <<< go to rest immediately
           }
 
@@ -88,12 +115,14 @@ export default function WorkoutPlayer({ workout, onBack }) {
             setCurrentSet(nextSet);
             setStepIdx(0);
             setPhase("work");
+            lastPlayedSecondRef.current = null;
             return steps[0].sec * 1000; // <<< start next set immediately
           }
 
           // Finished all
           setRunning(false);
           setDone(true);
+          lastPlayedSecondRef.current = null;
           return 0;
         } else {
           // REST finished → next set start or finish
@@ -102,9 +131,11 @@ export default function WorkoutPlayer({ workout, onBack }) {
             setCurrentSet(nextSet);
             setStepIdx(0);
             setPhase("work");
+            lastPlayedSecondRef.current = null;
             return steps[0].sec * 1000; // <<< start set 0 immediately
           }
           setRunning(false);
+          lastPlayedSecondRef.current = null;
           return 0;
         }
       });
@@ -125,6 +156,7 @@ export default function WorkoutPlayer({ workout, onBack }) {
     setStepIdx(0);
     setDone(false);
     setRemainingMs(steps[0]?.sec * 1000 || 1000);
+    lastPlayedSecondRef.current = null; // Zresetuj referencję przy resecie
   };
 
   return (
