@@ -155,65 +155,61 @@ export default function WorkoutEditor({ workout, onBack }) {
                   {steps.map((s, i) => (
                       <div
                           key={i}
-                          className="bg-slate-800 rounded-2xl p-2 sm:p-3 border border-slate-700 flex items-center gap-2"
+                          className="bg-slate-800 rounded-2xl p-3 border border-slate-700"
                       >
-                          {/* label */}
-                          <input
-                              value={s.label}
-                              onChange={(e) => updateStep(i, {label: e.target.value})}
-                              className="flex-1 bg-slate-700 rounded-xl px-3 py-2 outline-none"
-                              placeholder="Label (e.g. Work / Lower / Iso)"
-                          />
-
-                          {/* seconds */}
-                          <div className="w-28">
-                              <NumberField
-                                  value={s.sec}
-                                  onChange={(n) => updateStep(i, {sec: n})}
-                                  min={1}
-                                  step={1}
-                                  compact
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                              <input
+                                  value={s.label}
+                                  onChange={(e) => updateStep(i, {label: e.target.value})}
+                                  className="w-full sm:flex-1 bg-slate-700 rounded-xl px-3 py-2 outline-none"
+                                  placeholder="Label (e.g. Work / Lower / Iso)"
                               />
-                          </div>
 
-                          {/* actions */}
-                          <div className="flex gap-1">
-                              <button
-                                  className="p-2 rounded-xl bg-slate-600 hover:bg-slate-500"
-                                  onClick={() => moveStep(i, -1)}
-                                  title="Move up"
-                              >
-                                  <svg xmlns="http://www.w3.org/2000/svg"
-                                       viewBox="0 0 24 24"
-                                       fill="currentColor"
-                                       className="w-4 h-4">
-                                      <path d="M12 4l-7 8h14z"/>
-                                  </svg>
-                              </button>
-                              <button
-                                  className="p-2 rounded-xl bg-slate-600 hover:bg-slate-500"
-                                  onClick={() => moveStep(i, 1)}
-                                  title="Move down"
-                              >
-                                  <svg xmlns="http://www.w3.org/2000/svg"
-                                       viewBox="0 0 24 24"
-                                       fill="currentColor"
-                                       className="w-4 h-4">
-                                      <path d="M12 20l7-8H5z"/>
-                                  </svg>
-                              </button>
-                              <button
-                                  className="p-2 rounded-xl bg-rose-300/80 text-slate-900"
-                                  onClick={() => removeStep(i)}
-                                  title="Delete"
-                              >
-                                  <svg xmlns="http://www.w3.org/2000/svg"
-                                       viewBox="0 0 24 24"
-                                       fill="currentColor"
-                                       className="w-4 h-4">
-                                      <path d="M6 6h12v2H6zm2 3h8l-1 11H9z"/>
-                                  </svg>
-                              </button>
+                              <div className="w-full flex items-center gap-2 sm:w-auto sm:ml-auto">
+                                  {/* czas */}
+                                  <div className="flex-1 sm:flex-none sm:w-28">
+                                      <NumberField
+                                          value={s.sec}
+                                          onChange={(n) => updateStep(i, {sec: n})}
+                                          min={1}
+                                          step={1}
+                                          compact
+                                      />
+                                  </div>
+
+                                  <div className="flex gap-1 ml-auto">
+                                      <button
+                                          className="p-2 rounded-xl bg-slate-600 hover:bg-slate-500"
+                                          onClick={() => moveStep(i, -1)}
+                                          title="Move up"
+                                      >
+                                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                               fill="currentColor" className="w-4 h-4">
+                                              <path d="M12 4l-7 8h14z"/>
+                                          </svg>
+                                      </button>
+                                      <button
+                                          className="p-2 rounded-xl bg-slate-600 hover:bg-slate-500"
+                                          onClick={() => moveStep(i, 1)}
+                                          title="Move down"
+                                      >
+                                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                               fill="currentColor" className="w-4 h-4">
+                                              <path d="M12 20l7-8H5z"/>
+                                          </svg>
+                                      </button>
+                                      <button
+                                          className="p-2 rounded-xl bg-rose-300/80 text-slate-900"
+                                          onClick={() => removeStep(i)}
+                                          title="Delete"
+                                      >
+                                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                               fill="currentColor" className="w-4 h-4">
+                                              <path d="M6 6h12v2H6zm2 3h8l-1 11H9z"/>
+                                          </svg>
+                                      </button>
+                                  </div>
+                              </div>
                           </div>
                       </div>
                   ))}
